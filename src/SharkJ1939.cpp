@@ -6,6 +6,9 @@
 #define J1939_PGN_MASK 0x03FFFF00
 #define J1939_PF_MASK 0x0000FF00
 #define J1939_PS_MASK 0x000000FF
+
+// PF <  240: Message is PDU1. (addressable message, PS contains destination address)
+// PF >= 240: Message is PDU2. (broadcast message, PS contains group extension)
 #define J1939_PDU1_RANGE(PF) (PF < 240)
 
 // Helper function to print hexadecimal values with leading zeros
@@ -59,30 +62,32 @@ void SharkJ1939::dumpMessage(struct can_frame &j1939Msg)
   }
   else
   {
-    Serial.print(" --"); // PDU2 contains group extension.
+    Serial.print("--"); // PDU2 contains group extension.
     pgn = j1939_18_bit_pgn;
   }
 
   Serial.print(' ');
 
-  int index;
-
-  for (index = 0; index < 4; index++)
+  for (int index = 0;; index++)
   {
+    if (pgnKnownTable_[index].pgn == 0) // The last entry with 0 to indicates the end of the table.
+    {
+      Serial.print(pgn); // Print the PGN number for unknown PGN.
+      break;
+    }
+
     if (pgnKnownTable_[index].pgn != pgn)
+    {
       continue;
-    
+    }
+
     Serial.print(pgnKnownTable_[index].pgnAcronym); // Print the acronym (PGN name) for the known PGN.
     if (pgnKnownTable_[index].pgnCallback != NULL)
     {
       pgnKnownTable_[index].pgnCallback(j1939Msg.data); // Call the callback function with the CAN data.
     }
-    
-    break;
-  }
 
-  if (index==4) {
-    Serial.print(pgn); // Print the PGN number for unknown PGN.
+    break;
   }
 
   Serial.println();
