@@ -8,11 +8,12 @@
 struct can_frame canMsg;
 MCP2515 mcp2515(10);
 
-static void tc1_callback(uint8_t *data)
+static void tc1_callback(uint8_t dlc, uint8_t *data)
 {
   Serial.print(' ');
 
-  uint8_t spn525 = data[2]; // The position of SPN 525 in PG is 3. It is at index 2 of the data array.
+  // The position of SPN 525 in PG is 3. It is at index 2 of the data array.
+  uint8_t spn525 = data[2];
 
   if (spn525 == 0x7D)
     Serial.print('N'); // Print 'N' for Neutral if SPN 525 is equal to 0x7D
@@ -20,16 +21,21 @@ static void tc1_callback(uint8_t *data)
     Serial.print('R'); // Print 'R' for Reverse if SPN 525 is equal to 0xDF
   else
     Serial.print(spn525, HEX);
+
+  Serial.print(' ');
+
+  // Comment out this line if there is no Safety Header Message.
+  Serial.print(SharkJ1939::calculateSDMDataCRC(dlc, data), HEX);
 }
 
 static PGN_KNOWN_ENTRY pgnKnownTable[] = {
     {256, "TC1", tc1_callback}, // PGN 256(=0x0100) Transmission Control 1 with 'tc1_callback()'.
     {3584, "SHM", NULL},        // PGN 3584(=0xE00) Safety Header Message with no callback function
-    {0xBF00, "PCM15", NULL},
-    {0xC000, "PCM16", NULL},
-    {0xEE00, "AC", NULL},
-    {0xEEC2, "EEC2", NULL},
-    {0, NULL, NULL} // The last entry with 0 and NULL to indicates the end of the table.
+    {48896, "PCM15", NULL},
+    {60928, "AC", NULL},
+    {61443, "EEC2", NULL},
+    {126720, "PropA2", NULL},
+    {0, NULL, NULL} // The last entry to indicates the end of the table.
 };
 
 SharkJ1939 sharkj1939(&mcp2515); // SharkJ1939 object initialized with MCP2515 CAN controller
