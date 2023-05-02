@@ -18,6 +18,7 @@ static PGN_KNOWN_ENTRY pgnKnownTable[] = {
     {48896, "PCM15", NULL},
     {60928, "AC", NULL},
     {61443, "EEC2", NULL},
+    {65265, "CCVS1", ccvs1_callback}, // PGN 65265(=0xFEF1) Cruise Control/Vehicle Speed 1
     {126720, "PropA2", NULL},
     {0, NULL, NULL} // The last entry to indicates the end of the table.
 };
@@ -30,6 +31,7 @@ Here are some example J1939 messages displayed in the Serial Display, along with
 08F18F05 8 01 05 03 00 01 00 FD FF 1000073740 -- 61839
 0C0E0305 8 0F FA FC FE F2 D9 94 97 1000073786 03 SHM
 0C010305 8 FF FF 7D FF FF 3F 3F FF 1000073788 03 TC1 N 9794D9F2
+18FEF100 8 3F 16 92 CF FF FF FF FF 1000215723 -- CCVS1 90.77 MPH
 ```
 - PGN TC1 indicates that the CRC value 9794D9F2 matches 'F2 D9 94 97' in the SHM message.
 

@@ -28,12 +28,27 @@ static void tc1_callback(uint8_t dlc, uint8_t *data)
   Serial.print(SharkJ1939::calculateSDMDataCRC(dlc, data), HEX);
 }
 
+static void ccvs1_callback(uint8_t dlc, uint8_t *data)
+{
+  Serial.print(' ');
+
+  uint16_t spn84;  // Wheel-Based Vehicle Speed
+  spn84 = data[2]; // MSB
+  spn84 <<= 8;
+  spn84 |= data[1]; // LSB
+
+  float mph = spn84 * 0.00390625 / 1.609344; // bits --> km/h --> mph
+  Serial.print(mph);
+  Serial.print(" MPH");
+}
+
 static PGN_KNOWN_ENTRY pgnKnownTable[] = {
     {256, "TC1", tc1_callback}, // PGN 256(=0x0100) Transmission Control 1 with 'tc1_callback()'.
     {3584, "SHM", NULL},        // PGN 3584(=0xE00) Safety Header Message with no callback function
     {48896, "PCM15", NULL},
     {60928, "AC", NULL},
     {61443, "EEC2", NULL},
+    {65265, "CCVS1", ccvs1_callback}, // PGN 65265(=0xFEF1) Cruise Control/Vehicle Speed 1
     {126720, "PropA2", NULL},
     {0, NULL, NULL} // The last entry to indicates the end of the table.
 };
