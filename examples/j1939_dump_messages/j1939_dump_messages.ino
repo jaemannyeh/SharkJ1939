@@ -77,6 +77,6 @@ void loop()
 
   if (mcp2515.readMessage(&canMsg) == MCP2515::ERROR_OK)
   {
-    sharkj1939.dumpMessage(canMsg); // Dump received CAN messages with J1939 format to Serial
+    sharkj1939.dumpMessageInJ1939Format(canMsg); // Dump received CAN messages with J1939 format to Serial
   }
 }

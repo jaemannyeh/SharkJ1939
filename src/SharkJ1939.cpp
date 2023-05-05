@@ -29,7 +29,7 @@ inline void printHexWithLeadingZero(const uint8_t value)
   Serial.print(value, HEX);
 }
 
-void SharkJ1939::dumpMessage(const struct can_frame &j1939Msg)
+void SharkJ1939::dumpMessageInJ1939Format(const struct can_frame &j1939Msg)
 {
   if (pauseFlag_)
     return;
@@ -101,11 +101,6 @@ void SharkJ1939::dumpMessage(const struct can_frame &j1939Msg)
   Serial.println();
 }
 
-void SharkJ1939::mirrorMessage(struct can_frame &j1939Msg, const uint8_t newSA)
-{
-  // TBD
-}
-
 void SharkJ1939::processUserInput(void)
 {
   if (Serial.read() == '\n')
@@ -115,6 +110,7 @@ void SharkJ1939::processUserInput(void)
   }
 }
 
+#ifdef FEATURE_SDM_CRC32
 // This lookup table was created using http://www.sunshine2k.de/coding/javascript/crc/crc_js.html
 // The CRC polynomial used: 0x6938392D
 static const uint32_t sdm_crc32_lookup_table[] = {
@@ -150,9 +146,11 @@ static const uint32_t sdm_crc32_lookup_table[] = {
     0xCDBA7203, 0xA4824B2E, 0x1FCA0059, 0x76F23974, 0x0062AF9A, 0x695A96B7, 0xD212DDC0, 0xBB2AE4ED,
     0xB318CD0F, 0xDA20F422, 0x6168BF55, 0x08508678, 0x7EC01096, 0x17F829BB, 0xACB062CC, 0xC5885BE1,
     0x41914F10, 0x28A9763D, 0x93E13D4A, 0xFAD90467, 0x8C499289, 0xE571ABA4, 0x5E39E0D3, 0x3701D9FE};
+#endif // FEATURE_SDM_CRC32
 
 static uint32_t SharkJ1939::calculateSDMDataCRC(const uint8_t dlc, const uint8_t *data)
 {
+#ifdef FEATURE_SDM_CRC32
   // The SDM Data CRC (SPN 9383) is the 32-bit CRC of the data field of the corresponding SDM.
   // The CRC polynomial used: 0x6938392D
   // Initial value: 0xFFFFFFFF, Final XOR value: 0x00000000
@@ -172,4 +170,7 @@ static uint32_t SharkJ1939::calculateSDMDataCRC(const uint8_t dlc, const uint8_t
   }
 
   return crc32;
+#else
+  return 0;
+#endif
 }

@@ -1,6 +1,10 @@
 #ifndef _SHARKJ1939_H_
 #define _SHARKJ1939_H_
 
+// Enabling FEATURE_SDM_CRC32 will require an additional 1102 bytes for code and 1024 bytes for data.
+// If there is insufficient memory and you don't need SHM and SDM, then undefine FEATURE_SDM_CRC32.
+#define FEATURE_SDM_CRC32
+
 // PGN_KNOWN_ENTRY struct is used for associating PGNs with corresponding callback functions.
 typedef struct
 {
@@ -16,9 +20,7 @@ public:
 
   bool bindPGNKnownTable(PGN_KNOWN_ENTRY *pgnKnownTable) { pgnKnownTable_ = pgnKnownTable; }
 
-  void dumpMessage(const struct can_frame &j1939Msg); // Dump received CAN messages with J1939 format to Serial
-
-  void mirrorMessage(struct can_frame &j1939Msg, uint8_t newSA); // message mirroring with a new source address.
+  void dumpMessageInJ1939Format(const struct can_frame &j1939Msg); // Dump received CAN messages with J1939 format to Serial
 
   void processUserInput(void); // Processes user input to pause or resume processing of J1939 messages
 
